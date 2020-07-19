@@ -1,0 +1,26 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<div class="jumbotron text-center">
+  <h1>Welcome to SPD: Speed and Proximity Detection</h1>
+  <p class="leads font-weight-bold text-center">
+    This app was built by-
+    <br>
+    Mugdha Bhagwat   &nbsp&nbsp-&nbsp   161071050
+    <br>
+    Prachiti Parkar  &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp-&nbsp  161071059
+    <br>
+    Darshi Shah      &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp-&nbsp   161071008
+    <br>
+    Aman Framewala   &nbsp&nbsp-&nbsp   161070012
+    <br>
+    Yash Dani        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp-&nbsp  161070028
+  </p>
+
+  {% if session.logged_in == NULL %}
+    <a href="/register" class="btn btn-info btn-lg"> Register </a>
+    <a href="/login" class="btn btn-danger btn-lg"> Login </a>
+  {% endif %}
+
+</div>
+{% endblock %}

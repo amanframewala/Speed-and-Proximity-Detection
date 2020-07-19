@@ -1,0 +1,61 @@
+{% extends 'layout.html' %}
+{% block head %} 
+
+<meta http-equiv="refresh" content="7">
+
+{% endblock %}
+
+
+{% block body %}
+<div id="dashb" class="container">
+
+        {% include 'includes/_messages.html' %}
+        <br>
+        <h1> Welcome {{session.name}}</h1>
+        <br>
+
+  <table class="table table-light">
+
+    <tr>
+      <th>Username</th>
+      <th class="table-info">Speed</th>
+      <th>Number of Warnings sent</th>
+      <th>Number of offences committed</th>
+      <th>View Details</th>
+    </tr>
+    <tr>
+        <td>{{speeds.name}}</td>
+        <td class="table-info">{{speeds.speedValue}}</td>
+        <td>{{speeds.warningsSent}}</td>
+        <td>{{speeds.offenceRegistered}}</td>
+        <td><a class = "btn btn-danger" href= "{{ url_for('graphs') }}" > Graphical Analysis</a> </td>
+    </tr>
+    {% for dummySpeed in dummySpeeds %}
+    <tr>
+        <td>{{dummySpeed.name}}</td>
+        <td class="table-info">{{dummySpeed.speedValue}}</td>
+        <td>{{dummySpeed.warningsSent}}</td>
+        <td>{{dummySpeed.offenceRegistered}}</td>
+        <td><a class = "btn btn-danger" href= "{{ url_for('graphs') }}" > Graphical Analysis</a> </td>
+    </tr>
+  {% endfor %}
+
+  </table>
+        
+</div>
+
+
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js">
+    </script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
+    <script src="//cdn.ckeditor.com/4.9.0/standard/ckeditor.js"></script>
+    <script type="text/javascript">
+      // CKEDITOR.replace('editor')
+    </script>
+    <!-- <script>
+      $(document).ready(function() {
+          $('dashb').load('/?speeds=speeds');
+      });        
+    </script> -->
+
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<div class="jumbotron text-center">
+  <h1>About Us</h1>
+  <br>
+  <p class="lead text-justify">
+    SPD is a Speed Detection Application, which is used for effective overspeeding detection by a simple integration in the accelerometer of each car.
+    <br>
+    The accelerometer connected to the car wirelessly send data to our database where an intense analysis is done on the collected data and accordingly a warning or an offence committed message is being sent to the user on his registered E- mail address and his registered mobile number. The user data is collected at the time of registering the car in his name. We also offer graphical statistics to map out the users driving speeds.
+  </p>
+  <img src="{{ url_for('static',filename='images/tracks.jpeg') }}" alt="Dark Themed Accelerometer" style="width:100%">
+</div>
+{% endblock %}

@@ -1,0 +1,227 @@
+Run the following queries on the terminal:
+
+#Create Database
+CREATE DATABASE SPD;
+
+#Switch to the created Database: speed
+USE SPD;
+
+#Create the following tables
+
+1. For the Admin/ Authorities
+CREATE TABLE admin( adminID INT PRIMARY KEY AUTO_INCREMENT, adminName VARCHAR(100), adminCode INT, adminUsername VARCHAR(150), adminPassword VARCHAR(200));
+
+2. For each individual user
+CREATE TABLE users( userID INT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(100), username VARCHAR(150), password VARCHAR(200), mobile VARCHAR(12), email VARCHAR(100));
+
+3. Speed recorded table for each individual users
+CREATE TABLE speed( userID INT DEFAULT 1, speedValue FLOAT, recordedTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP, warningsSent INT, offenceRegistered INT);
+ALTER TABLE speed ADD warningRecorded TIMESTAMP DEFAULT CURRENT_TIMESTAMP AFTER recordedTime;
+ALTER TABLE speed ADD offenceRecorded TIMESTAMP DEFAULT CURRENT_TIMESTAMP AFTER warningsSent;
+
+INSERT INTO speed(speedValue) VALUES (10);
+
+4. Dummy speed data for rest of the users
+
+CREATE TABLE dummySpeedData( userID INT, speedValue FLOAT, recordedTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP, warningRecorded TIMESTAMP DEFAULT CURRENT_TIMESTAMP, warningsSent INT, offenceRecorded TIMESTAMP DEFAULT CURRENT_TIMESTAMP, offenceRegistered INT);
+
+INSERT INTO dummySpeedData(userID, speedValue, warningsSent, offenceRegistered) VALUES(3, 78.2, 1, 4);
+
+# Triggers
+
+1. To record all fields in the speeds table
+
+DELIMITER //
+
+CREATE TRIGGER newEntryCheck 
+AFTER INSERT ON speeds FOR EACH ROW
+BEGIN
+
+DECLARE current_speed FLOAT;
+DECLARE current_timevalue TIMESTAMP;
+DECLARE prev_warningRecorded TIMESTAMP;
+DECLARE prev_warningsSent INT;
+DECLARE prev_offenceRecorded TIMESTAMP;
+DECLARE prev_offenceRegistered INT;
+
+SELECT speed, time
+INTO current_speed, current_timevalue
+FROM speeds
+ORDER BY time DESC
+LIMIT 1;
+
+SELECT warningRecorded, warningsSent, offenceRecorded, offenceRegistered
+INTO prev_warningRecorded, prev_warningsSent, prev_offenceRecorded, prev_offenceRegistered
+FROM speed
+ORDER BY recordedTime DESC
+LIMIT 1;
+
+IF current_speed > 80 AND current_timevalue - prev_offenceRecorded > 15 THEN
+INSERT INTO speed(speedValue, recordedTime, warningRecorded, warningsSent, offenceRecorded, offenceRegistered) VALUES (current_speed, current_timevalue, prev_warningRecorded, prev_warningsSent, current_timevalue, prev_offenceRegistered + 1);
+
+ELSEIF current_speed > 60 AND current_speed < 81 AND current_timevalue - prev_warningRecorded > 15 THEN
+INSERT INTO speed(speedValue, recordedTime, warningRecorded, warningsSent, offenceRecorded, offenceRegistered) VALUES (current_speed, current_timevalue, current_timevalue, prev_warningsSent + 1, prev_offenceRecorded, prev_offenceRegistered);
+
+ELSE
+INSERT INTO speed(speedValue, recordedTime, warningRecorded, warningsSent, offenceRecorded, offenceRegistered) VALUES (current_speed, current_timevalue, prev_warningRecorded, prev_warningsSent, prev_offenceRecorded, prev_offenceRegistered);
+
+END IF;
+
+END//
+
+DELIMITER ;
+
+--------------------------------------------------------------------------------------------------------------------------------------------------
+
+# = CURRENT_TIMESTAMP();
+#AND SET NEW.offenceRegistered = prev_offenceRegistered;
+
+DELIMITER //
+
+CREATE TRIGGER warningsCheck 
+BEFORE INSERT ON speed FOR EACH ROW
+BEGIN
+
+DECLARE current_speed FLOAT;
+DECLARE current_timevalue TIMESTAMP;
+DECLARE prev_warningRecorded TIMESTAMP;
+DECLARE prev_warningsSent INT;
+DECLARE prev_offenceRegistered INT;
+
+SELECT speed, time
+INTO current_speed, current_timevalue
+FROM speeds
+ORDER BY time DESC
+LIMIT 1;
+
+SELECT warningRecorded, warningsSent, offenceRegistered
+INTO prev_warningRecorded, prev_warningsSent, prev_offenceRegistered
+FROM speed
+ORDER BY recordedTime DESC
+LIMIT 1;
+
+IF current_speed > 60 AND current_timevalue - prev_warningRecorded > 15 THEN
+SET NEW.warningsSent = prev_warningsSent + 1;
+
+ELSE
+SET NEW.warningsSent = prev_warningsSent;
+
+END IF;
+
+END//
+
+DELIMITER ;
+
+----------------------------------------------------------------------------------------------------------------------
+
+DELIMITER //
+
+CREATE TRIGGER warningsCheck 
+BEFORE INSERT ON speed FOR EACH ROW
+BEGIN
+
+DECLARE current_speed FLOAT;
+DECLARE current_timevalue TIMESTAMP;
+DECLARE prev_warningRecorded TIMESTAMP;
+DECLARE prev_warningsSent INT;
+DECLARE prev_offenceRegistered INT;
+
+SELECT speed, time
+INTO current_speed, current_timevalue
+FROM speeds
+ORDER BY time DESC
+LIMIT 1;
+
+SELECT warningRecorded, warningsSent, offenceRegistered
+INTO prev_warningRecorded, prev_warningsSent, prev_offenceRegistered
+FROM speed
+ORDER BY recordedTime DESC
+LIMIT 1;
+
+IF current_speed > 60 AND current_timevalue - prev_warningRecorded > 15 THEN
+SET NEW.warningRecorded = current_timevalue;
+SET NEW.recordedTime = current_timevalue;
+SET NEW.warningsSent = prev_warningsSent + 1;
+
+ELSE
+SET NEW.warningRecorded = prev_warningRecorded;
+SET NEW.recordedTime = current_timevalue;
+SET NEW.warningsSent = prev_warningsSent;
+
+END IF;
+
+END//
+
+DELIMITER ;
+
+----------------------------------------------------------------------------------------------------------------------
+
+DELIMITER //
+
+CREATE TRIGGER warningsCheck 
+BEFORE INSERT ON speed
+BEGIN
+
+DECLARE current_speed FLOAT;
+DECLARE current_timevalue TIMESTAMP;
+DECLARE prev_warningRecorded TIMESTAMP;
+DECLARE prev_warningsSent INT;
+DECLARE prev_offenceRegistered INT;
+
+SELECT speed, time
+INTO current_speed, current_timevalue
+FROM speeds
+ORDER BY time DESC
+LIMIT 1;
+
+SELECT warningRecorded, warningsSent, offenceRegistered
+INTO prev_warningRecorded, prev_warningsSent, prev_offenceRegistered
+FROM speed
+ORDER BY recordedTime DESC
+LIMIT 1;
+
+IF current_speed > 60 AND current_timevalue - prev_warningRecorded > 15 THEN
+SET NEW.warningRecorded = current_timevalue;
+SET NEW.recordedTime = current_timevalue;
+SET NEW.warningsSent = prev_warningsSent + 1;
+
+ELSE
+SET NEW.warningRecorded = prev_warningRecorded;
+SET NEW.recordedTime = current_timevalue;
+SET NEW.warningsSent = prev_warningsSent;
+
+END IF;
+
+END//
+
+DELIMITER ;
+
+--------------------------------------------------------------------------------------------------------------------------------------
+
+
+INSERT INTO speeds(speed) VALUES (10);
+INSERT INTO speed(speedValue) VALUES (10);
+
+SELECT * FROM speeds;
+SELECT * FROM speed;
+
+INSERT INTO speeds(speed) VALUES (90);
+INSERT INTO speed(speedValue) VALUES (90);
+
+SELECT * FROM speeds;
+SELECT * FROM speed;
+
+INSERT INTO speeds(speed) VALUES (45);
+INSERT INTO speed(speedValue) VALUES (45);
+
+SELECT * FROM speeds;
+SELECT * FROM speed;
+
+-------------------------------------------------------------------------------------------------------------------------------------
+
+#Event Scheduler to change the speed
+SET GLOBAL event_scheduler = ON;
+CREATE EVENT increaseSpeed ON SCHEDULE EVERY 5 SECOND DO UPDATE speedRecord SET speed = speed + rand();
+CREATE EVENT decreaseSpeed ON SCHEDULE EVERY 7 SECOND DO UPDATE speedRecord SET speed = speed - rand();
+SET GLOBAL event_scheduler = OFF;
+
